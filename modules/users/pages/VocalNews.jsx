@@ -1,36 +1,19 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { generateVoice } from "../api/murf-api";
 import { fetchLatestNewsWithAudio } from "../api/news-api";
 
 const VocalNews = () => {
-  const [text, setText] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
-  const [loading, setLoading] = useState(false);
   const [newsLoading, setNewsLoading] = useState(false);
   const [currentNews, setCurrentNews] = useState(null);
-
-  const handleGenerate = async () => {
-    if (!text.trim()) return alert("Please enter some text");
-    setLoading(true);
-    try {
-      const url = await generateVoice(text);
-      setAudioUrl(url);
-    } catch (error) {
-      alert("Error generating voice");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleFetchLatestNews = async () => {
     setNewsLoading(true);
     try {
       const { news, audioUrl } = await fetchLatestNewsWithAudio();
       setCurrentNews(news);
-      setText(`${news.title}. ${news.description}`);
       setAudioUrl(audioUrl);
     } catch (error) {
       alert("Error fetching latest news");
@@ -41,14 +24,20 @@ const VocalNews = () => {
   };
   return (
     <div className="min-h-screen flex justify-center py-8">
-      <Card className="w-full max-w-2xl mx-auto mt-4 min-h-fit">
+      <Card className={`mx-auto mt-4 transition-all duration-500 ${
+        currentNews || audioUrl 
+          ? 'w-full max-w-2xl min-h-fit' 
+          : 'w-full max-w-md h-auto'
+      }`}>
         <CardHeader>
           <CardTitle className="space-y-1 text-center">🗞️ VocalNews</CardTitle>
           <CardDescription className="text-center">
-            Convert your news text to voice
+            Get the latest tech news and listen to it instantly
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className={`transition-all duration-300 ${
+          currentNews || audioUrl ? 'space-y-6 pt-6 pb-2' : 'space-y-3 pt-4 pb-3'
+        }`}>
           {/* Latest News Section */}
           <div className="grid w-full items-center gap-3">
             <Button
@@ -60,40 +49,18 @@ const VocalNews = () => {
             </Button>
           </div>
 
-          {/* Current News Display */}
+          {/* Current News Display - Only show when news is loaded */}
           {currentNews && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg animate-in slide-in-from-top-2 duration-300">
               <h3 className="font-bold text-lg mb-2">📈 Latest News:</h3>
               <h4 className="font-semibold text-md mb-1">{currentNews.title}</h4>
               <p className="text-sm text-gray-600">{currentNews.description}</p>
             </div>
           )}
-
-          {/* Manual Text Input Section */}
-          <div className="space-y-3">
-            <Label htmlFor="newsText">Or enter your own text</Label>
-            <textarea
-              id="newsText"
-              className="w-full h-32 p-3 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your news text here..."
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            />
-          </div>
           
-          <div className="grid w-full items-center gap-3">
-            <Button
-              onClick={handleGenerate}
-              disabled={loading || !text.trim()}
-              className="bg-green-600 hover:bg-green-700 text-white w-full"
-            >
-              {loading ? "Generating Voice..." : "🎙️ Generate Voice from Text"}
-            </Button>
-          </div>
-          
-          {/* Audio Player Section */}
+          {/* Audio Player Section - Only show when audio is available */}
           {audioUrl && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="p-4 bg-green-50 border border-green-200 rounded-lg animate-in slide-in-from-bottom-2 duration-300">
               <Label className="text-lg font-semibold mb-3 block">
                 🎧 Generated Audio:
               </Label>
