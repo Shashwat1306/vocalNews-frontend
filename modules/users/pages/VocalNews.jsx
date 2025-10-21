@@ -4,12 +4,14 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { useState } from "react";
 import { fetchLatestNewsWithAudio } from "../api/news-api";
+import bgImage from "../../../src/assets/bg.jpg";
 
 const VocalNews = () => {
   const [audioUrl, setAudioUrl] = useState("");
   const [newsLoading, setNewsLoading] = useState(false);
   const [currentNews, setCurrentNews] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState("en");
+  const [selectedCategory, setSelectedCategory] = useState("technology");
 
   // Language options based on backend voiceMap
   const languageOptions = [
@@ -20,10 +22,22 @@ const VocalNews = () => {
     { value: "de", label: "🇩🇪 German", voice: "Lukas" },
   ];
 
+  // News categories
+  const categories = [
+    { id: "general", name: "📰 General", icon: "📰" },
+    { id: "business", name: "💼 Business", icon: "💼" },
+    { id: "technology", name: "💻 Technology", icon: "💻" },
+    { id: "entertainment", name: "🎬 Entertainment", icon: "🎬" },
+    { id: "health", name: "🏥 Health", icon: "🏥" },
+    { id: "science", name: "🔬 Science", icon: "🔬" },
+    { id: "sports", name: "⚽ Sports", icon: "⚽" },
+  ];
+
+
   const handleFetchLatestNews = async () => {
     setNewsLoading(true);
     try {
-      const { news, audioUrl } = await fetchLatestNewsWithAudio(selectedLanguage);
+      const { news, audioUrl } = await fetchLatestNewsWithAudio(selectedLanguage, selectedCategory);
       setCurrentNews(news);
       setAudioUrl(audioUrl);
     } catch (error) {
@@ -34,8 +48,13 @@ const VocalNews = () => {
     }
   };
   return (
-    <div className=" flex justify-center py-8">
-      <Card className={`mx-auto mt-4 transition-all duration-500 ${
+    <div
+      className="min-h-screen flex justify-center py-8 bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+      }}
+    >
+      <Card className={`mx-auto mt-4 transition-all duration-500 shadow-lg bg-white/80 backdrop-blur-md hover:scale-105 hover:shadow-2xl hover:bg-white/85 transform ease-in-out ${
         currentNews || audioUrl 
           ? 'w-full max-w-2xl min-h-fit' 
           : 'w-full max-w-md h-auto'
@@ -43,12 +62,29 @@ const VocalNews = () => {
         <CardHeader>
           <CardTitle className="space-y-1 text-center">🗞️ VocalNews</CardTitle>
           <CardDescription className="text-center">
-            Get the latest tech news and listen to it instantly
+            Get the latest news in any category and listen to it instantly
           </CardDescription>
         </CardHeader>
         <CardContent className={`transition-all duration-300 ${
           currentNews || audioUrl ? 'space-y-6 pt-6 pb-2' : 'space-y-3 pt-4 pb-3'
         }`}>
+          {/* Category Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="category-select">Choose News Category</Label>
+            <Select
+              id="category-select"
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              disabled={newsLoading}
+            >
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+
           {/* Language Selection */}
           <div className="space-y-2">
             <Label htmlFor="language-select">Choose Voice Language</Label>
@@ -73,7 +109,10 @@ const VocalNews = () => {
               disabled={newsLoading}
               className="bg-red-600 hover:bg-red-700 text-white w-full"
             >
-              {newsLoading ? "Fetching Latest News..." : "📰 Get Latest Tech News & Read Aloud"}
+              {newsLoading 
+                ? "Fetching Latest News..." 
+                : `📰 Get Latest ${categories.find(c => c.id === selectedCategory)?.name || 'News'} & Read Aloud`
+              }
             </Button>
           </div>
 

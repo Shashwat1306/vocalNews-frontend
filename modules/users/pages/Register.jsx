@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "@/components/ui/label";
 import { doRegister } from "../api/user-api.js";
+import bgImage from "../../../src/assets/bg.jpg";
 
 const Register = () => {
   const [status,setStatus] = useState(false);
@@ -37,8 +38,13 @@ const registerSubmit=async(userData)=>{
   }
 }
   return(
-        <div  className="h-full flex items-center justify-center">
-    <Card className="w-full max-w-md mx-auto">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+      }}
+    >
+    <Card className="w-full max-w-md mx-auto shadow-lg bg-white/80 backdrop-blur-md transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl hover:bg-white/85 transform">
       <CardHeader>
         <CardTitle className="space-y-1 text-center">Welcome to VocalNews</CardTitle>
         <CardDescription className="text-center">
@@ -89,9 +95,21 @@ const registerSubmit=async(userData)=>{
           <br />
           <br />
           <div className="grid w-full max-w-sm items-center gap-3">
-            <Button className="bg-green-400 hover:bg-green-500 text-black">Register</Button>
+            <Button className="bg-black hover:bg-blue-900">Register</Button>
           </div>
         </form>
+        
+        <div className="text-center mt-4">
+          <p className="text-sm text-gray-600">
+            Already have an account?{" "}
+            <button
+              onClick={() => navigate("/login")}
+              className="text-blue-600 hover:text-blue-800 hover:underline font-medium cursor-pointer"
+            >
+              Login here
+            </button>
+          </p>
+        </div>
       </CardContent>
     </Card>
     </div>

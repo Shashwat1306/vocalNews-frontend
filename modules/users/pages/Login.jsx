@@ -9,6 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "../validations/user-validations.js";
 import { doLogin } from "../api/user-api.js";
 import { set } from "zod";
+import bgImage from "../../../src/assets/bg.jpg";
 const Login=() => {
     const [status,setStatus] = useState(false);
     const [message,setMessage] = useState("");
@@ -43,8 +44,13 @@ const Login=() => {
         }
     };
     return(
-    <div className="h-full flex items-center justify-center ">
-      <Card className="w-full max-w-md mx-auto">
+    <div
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+      }}
+    >
+      <Card className="w-full max-w-md mx-auto shadow-lg bg-white/80 backdrop-blur-md transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-2xl hover:bg-white/85 transform">
         <CardHeader>
           <CardTitle className="space-y-1 text-center">Login Here</CardTitle>
           <CardDescription className="text-center">
@@ -80,7 +86,7 @@ const Login=() => {
 
             <br />
             <div className="grid w-full max-w-sm items-center gap-3">
-              <Button className="bg-green-300 hover:bg-green-400 text-black">
+              <Button className="bg-black hover:bg-blue-900">
                 Login
               </Button>
             </div>
