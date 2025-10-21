@@ -1,6 +1,7 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import { useState } from "react";
 import { fetchLatestNewsWithAudio } from "../api/news-api";
 
@@ -8,11 +9,21 @@ const VocalNews = () => {
   const [audioUrl, setAudioUrl] = useState("");
   const [newsLoading, setNewsLoading] = useState(false);
   const [currentNews, setCurrentNews] = useState(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
+
+  // Language options based on backend voiceMap
+  const languageOptions = [
+    { value: "en", label: "🇺🇸 English", voice: "Natalie" },
+    { value: "hi", label: "🇮🇳 Hindi", voice: "Kabir" },
+    { value: "es", label: "🇪🇸 Spanish", voice: "Carmen" },
+    { value: "fr", label: "🇫🇷 French", voice: "Adélie" },
+    { value: "de", label: "🇩🇪 German", voice: "Lukas" },
+  ];
 
   const handleFetchLatestNews = async () => {
     setNewsLoading(true);
     try {
-      const { news, audioUrl } = await fetchLatestNewsWithAudio();
+      const { news, audioUrl } = await fetchLatestNewsWithAudio(selectedLanguage);
       setCurrentNews(news);
       setAudioUrl(audioUrl);
     } catch (error) {
@@ -23,7 +34,7 @@ const VocalNews = () => {
     }
   };
   return (
-    <div className="min-h-screen flex justify-center py-8">
+    <div className=" flex justify-center py-8">
       <Card className={`mx-auto mt-4 transition-all duration-500 ${
         currentNews || audioUrl 
           ? 'w-full max-w-2xl min-h-fit' 
@@ -38,6 +49,23 @@ const VocalNews = () => {
         <CardContent className={`transition-all duration-300 ${
           currentNews || audioUrl ? 'space-y-6 pt-6 pb-2' : 'space-y-3 pt-4 pb-3'
         }`}>
+          {/* Language Selection */}
+          <div className="space-y-2">
+            <Label htmlFor="language-select">Choose Voice Language</Label>
+            <Select
+              id="language-select"
+              value={selectedLanguage}
+              onChange={(e) => setSelectedLanguage(e.target.value)}
+              disabled={newsLoading}
+            >
+              {languageOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label} ({option.voice})
+                </option>
+              ))}
+            </Select>
+          </div>
+
           {/* Latest News Section */}
           <div className="grid w-full items-center gap-3">
             <Button

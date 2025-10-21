@@ -2,12 +2,13 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export const fetchLatestNewsWithAudio = async () => {
+export const fetchLatestNewsWithAudio = async (language = 'en') => {
     try {
-        const response = await axios.post(`${API_URL}/news/latest`);
+        const response = await axios.post(`${API_URL}/news/latest`, { lang: language });
         return {
             news: response.data.news,
-            audioUrl: response.data.audioUrl
+            audioUrl: response.data.audioUrl,
+            language: response.data.language
         };
     } catch (error) {
         console.error("Error fetching latest news with audio:", error);
