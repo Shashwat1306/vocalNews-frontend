@@ -5,6 +5,7 @@ import { Select } from "@/components/ui/select";
 import { useState } from "react";
 import { fetchLatestNewsWithAudio } from "../api/news-api";
 import bgImage from "../../../src/assets/bg.jpg";
+import axios from "axios";
 
 const VocalNews = () => {
   const [audioUrl, setAudioUrl] = useState("");
@@ -12,6 +13,7 @@ const VocalNews = () => {
   const [currentNews, setCurrentNews] = useState(null);
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [selectedCategory, setSelectedCategory] = useState("technology");
+  const [saveLoading, setSaveLoading] = useState(false);
 
   // Language options based on backend voiceMap
   const languageOptions = [
@@ -47,18 +49,58 @@ const VocalNews = () => {
       setNewsLoading(false);
     }
   };
+
+  const handleSaveNews = async () => {
+    if (!currentNews) return;
+    
+    setSaveLoading(true);
+    try {
+      const token = localStorage.getItem("token");
+      if(!token){
+        alert("Please login to save news articles.");
+        setSaveLoading(false);
+        return;
+      }
+      const newsToSave = {
+        title: currentNews.title,
+        description: currentNews.description,
+        content: currentNews.content,
+        url: currentNews.url,
+        source : currentNews.source || "Unknown",
+        publishedAt: currentNews.publishedAt,
+        audioUrl: audioUrl,
+        category: currentNews.category,
+      };
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/saved-news/save`,
+        newsToSave,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      alert("News article saved successfully!");
+    } catch (error) {
+      console.error("Error saving news:", error);
+      alert("Failed to save news article. Please try again.");
+    } finally {
+      setSaveLoading(false);
+    }
+  };
   return (
-    <div
-      className="min-h-screen flex justify-center py-8 bg-cover bg-center"
-      style={{
-        backgroundImage: `url(${bgImage})`,
-      }}
-    >
-      <Card className={`mx-auto mt-4 transition-all duration-500 shadow-lg bg-white/80 backdrop-blur-md hover:scale-105 hover:shadow-2xl hover:bg-white/85 transform ease-in-out ${
-        currentNews || audioUrl 
-          ? 'w-full max-w-2xl min-h-fit' 
-          : 'w-full max-w-md h-auto'
-      }`}>
+    <div className="min-h-screen">
+      <div
+        className="min-h-screen flex justify-center py-8 bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${bgImage})`,
+        }}
+      >
+        <Card className={`mx-auto mt-4 transition-all duration-500 shadow-lg bg-white/80 backdrop-blur-md hover:scale-105 hover:shadow-2xl hover:bg-white/85 transform ease-in-out ${
+          currentNews || audioUrl 
+            ? 'w-full max-w-2xl min-h-fit' 
+            : 'w-full max-w-md h-auto'
+        }`}>
         <CardHeader>
           <CardTitle className="space-y-1 text-center">🗞️ VocalNews</CardTitle>
           <CardDescription className="text-center">
@@ -121,7 +163,25 @@ const VocalNews = () => {
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg animate-in slide-in-from-top-2 duration-300">
               <h3 className="font-bold text-lg mb-2">📈 Latest News:</h3>
               <h4 className="font-semibold text-md mb-1">{currentNews.title}</h4>
-              <p className="text-sm text-gray-600">{currentNews.description}</p>
+              <p className="text-sm text-gray-600 mb-2">{currentNews.description}</p>
+              <div className="flex flex-row gap-2">
+                {currentNews.url && (
+                  <Button
+                    onClick={() => window.open(currentNews.url, '_blank')}
+                    className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-md transition-colors duration-200 flex-1"
+                  >
+                    📖 Read Full Article  
+                  </Button>
+                )}
+                <Button
+                  onClick={handleSaveNews}
+                  disabled={saveLoading}
+                  variant="outline"
+                  className="border-green-500 text-green-700 hover:bg-green-50 text-xs px-3 py-1.5 rounded-md transition-colors duration-200 flex-1"
+                >
+                  {saveLoading ? "Saving..." : "💾 Save"}
+                </Button>
+              </div>
             </div>
           )}
           
@@ -141,7 +201,8 @@ const VocalNews = () => {
             </div>
           )}
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };

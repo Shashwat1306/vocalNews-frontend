@@ -30,12 +30,20 @@ const Header = () => {
             {/* Navigation Links */}
             <nav className="hidden md:flex items-center space-x-6">
               {localStorage.token && (
-                <Link 
-                  to="/vocal-news" 
-                  className="text-gray-300 hover:text-white transition-colors duration-200 font-medium hover:bg-gray-800/50 px-3 py-2 rounded-md"
-                >
-                  🎧 VocalNews
-                </Link>
+                <>
+                  <Link 
+                    to="/vocal-news" 
+                    className="text-gray-300 hover:text-white transition-colors duration-200 font-medium hover:bg-gray-800/50 px-3 py-2 rounded-md"
+                  >
+                    🎧 VocalNews
+                  </Link>
+                  <Link 
+                    to="/dashboard" 
+                    className="text-gray-300 hover:text-white transition-colors duration-200 font-medium hover:bg-gray-800/50 px-3 py-2 rounded-md"
+                  >
+                    📊 Dashboard
+                  </Link>
+                </>
               )}
             </nav>
           </div>
