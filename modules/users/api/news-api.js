@@ -11,6 +11,7 @@ export const fetchLatestNewsWithAudio = async (language = 'en', category = 'tech
         return {
             news: response.data.news,
             audioUrl: response.data.audioUrl,
+            translatedText: response.data.translatedText || response.data.cleanText || "",
             language: response.data.language,
             category: response.data.category
         };

@@ -11,6 +11,7 @@ const VocalNews = () => {
   const [audioUrl, setAudioUrl] = useState("");
   const [newsLoading, setNewsLoading] = useState(false);
   const [currentNews, setCurrentNews] = useState(null);
+  const [translatedText, setTranslatedText] = useState("");
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [selectedCategory, setSelectedCategory] = useState("technology");
   const [saveLoading, setSaveLoading] = useState(false);
@@ -143,6 +144,12 @@ const VocalNews = () => {
       const cat = detectCategory(transcript);
       setSelectedLanguage(lang);
       setSelectedCategory(cat);
+      // automatically fetch latest news for the detected language/category
+      try {
+        await handleFetchLatestNews(lang, cat);
+      } catch (err) {
+        console.error('Auto-fetch after detection failed:', err);
+      }
     } catch (err) {
       console.error("Detection error:", err);
       alert("Failed to detect from speech. See console for details.");
@@ -152,12 +159,16 @@ const VocalNews = () => {
   };
 
 
-  const handleFetchLatestNews = async () => {
+  const handleFetchLatestNews = async (lang = selectedLanguage, categoryParam = selectedCategory) => {
     setNewsLoading(true);
     try {
-      const { news, audioUrl } = await fetchLatestNewsWithAudio(selectedLanguage, selectedCategory);
+      const { news, audioUrl, translatedText: tText } = await fetchLatestNewsWithAudio(lang, categoryParam);
       setCurrentNews(news);
       setAudioUrl(audioUrl);
+      setTranslatedText(tText || "");
+      // ensure UI shows the selected values used for this fetch
+      setSelectedLanguage(lang);
+      setSelectedCategory(categoryParam);
     } catch (error) {
       alert("Error fetching latest news");
       console.error(error);
@@ -328,8 +339,8 @@ const VocalNews = () => {
 
           {/* Latest News Section */}
           <div className="grid w-full items-center gap-3">
-            <Button
-              onClick={handleFetchLatestNews}
+              <Button
+              onClick={() => handleFetchLatestNews()}
               disabled={newsLoading}
               className="bg-red-600 hover:bg-red-700 text-white w-full"
             >
@@ -346,6 +357,12 @@ const VocalNews = () => {
               <h3 className="font-bold text-lg mb-2">📈 Latest News:</h3>
               <h4 className="font-semibold text-md mb-1">{currentNews.title}</h4>
               <p className="text-sm text-gray-600 mb-2">{currentNews.description}</p>
+              {translatedText && (
+                <div className="mt-2 p-3 bg-white rounded border border-gray-100">
+                  <div className="text-sm text-gray-800"><strong>Translated ({selectedLanguage}):</strong></div>
+                  <div className="text-sm text-gray-700 mt-1">{translatedText}</div>
+                </div>
+              )}
               <div className="flex flex-row gap-2">
                 {currentNews.url && (
                   <Button
@@ -377,6 +394,7 @@ const VocalNews = () => {
                 controls 
                 src={audioUrl}
                 className="w-full max-w-full"
+                crossOrigin="anonymous"
               >
                 Your browser does not support the audio element.
               </audio>
